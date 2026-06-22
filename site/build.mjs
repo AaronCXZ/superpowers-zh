@@ -635,7 +635,11 @@ function build() {
     "form-action 'self'",
   ].join('; ');
 
-  // Cloudflare Pages：全站安全响应头（/*）+ 缓存策略（静态资源长缓存，HTML 不缓存）
+  // Cloudflare Pages：全站安全响应头 + 缓存策略。
+  // 默认 /* 不缓存（must-revalidate）——这样 clean URL 的 HTML（/、/skills/x、
+  // /en/x，均不带 .html）也能即时更新，不会被边缘缓存旧内容。
+  // 带内容 hash 版本号的资源（styles.css?v= / app.js?v=）与 /assets/* 由更具体
+  // 规则覆盖为长缓存 immutable（内容变 → URL 变 → 自动取新）。
   writeFileSync(join(DIST, '_headers'),
     '/*\n' +
     '  Content-Security-Policy: ' + csp + '\n' +
@@ -644,10 +648,10 @@ function build() {
     '  Referrer-Policy: no-referrer\n' +
     '  Cross-Origin-Opener-Policy: same-origin\n' +
     '  Permissions-Policy: geolocation=(), microphone=(), camera=()\n' +
+    '  Cache-Control: public, max-age=0, must-revalidate\n' +
     '/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n' +
-    '/styles.css\n  Cache-Control: public, max-age=86400\n' +
-    '/app.js\n  Cache-Control: public, max-age=86400\n' +
-    '/*.html\n  Cache-Control: public, max-age=0, must-revalidate\n');
+    '/styles.css\n  Cache-Control: public, max-age=31536000, immutable\n' +
+    '/app.js\n  Cache-Control: public, max-age=31536000, immutable\n');
 
   const pages = 2 + skills.length * 2;
   console.log(`✅ 生成 ${pages} 个页面：中/英首页 + ${skills.length} 个 skill × 2 语言详情页 → ${DIST}`);
