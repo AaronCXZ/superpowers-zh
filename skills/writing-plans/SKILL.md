@@ -20,9 +20,11 @@ metadata:
 
 **上下文：** 此技能应在专用 worktree 中运行（由 brainstorming 技能创建）。
 
-**前置条件：** harness skill 已将 brainstorming 规格写入 `feature_list.json`。
+**前置条件：** harness skill 已将 brainstorming 规格写入 `feature_list.json` 或 `project-state/features.json`。
 
-**计划保存位置：** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
+**计划保存位置：**
+- **小项目**：`docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
+- **大型项目**：`docs/exec-plans/active/YYYY-MM-DD-<feature-name>.md`
 - （用户对计划位置的偏好优先于此默认值）
 
 ## 读取项目状态
@@ -129,6 +131,18 @@ cat project-state/features.json
 - `planning` → `planned`（writing-plans 完成后）
 - `planned` → `in_progress`（开始执行任务）
 - `in_progress` → `completed`（所有任务完成）
+
+**执行计划管理（大型项目）：**
+
+对于大型项目，执行计划保存在 `docs/exec-plans/` 目录：
+- `docs/exec-plans/active/` - 活跃执行计划
+- `docs/exec-plans/completed/` - 已完成计划
+- `docs/exec-plans/tech-debt-tracker.md` - 技术债跟踪
+
+**技术债处理：**
+- 在实现过程中发现的技术债，记录到 `docs/exec-plans/tech-debt-tracker.md`
+- 技术债包括：未优化的代码、缺少测试、过时的依赖等
+- 记录格式：日期、区域、债务、延后原因、风险、下次触发点
 
 ## 范围检查
 
@@ -247,7 +261,7 @@ git commit -m "feat: add specific feature"
 
 保存计划后，提供执行选项：
 
-**"计划已完成并保存到 `docs/superpowers/plans/<filename>.md`。两种执行方式：**
+**"计划已完成并保存到 `docs/superpowers/plans/<filename>.md`（小项目）或 `docs/exec-plans/active/<filename>.md`（大型项目）。两种执行方式：**
 
 **1. 子代理驱动（推荐）** - 每个任务调度一个新的子代理，任务间进行审查，快速迭代
 

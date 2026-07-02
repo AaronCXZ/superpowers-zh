@@ -163,6 +163,10 @@ test -f feature_list.json && echo "小项目结构存在"
 
 # 检测大型项目结构
 test -d project-state && echo "大型项目结构存在"
+
+# 检测 AGENTS.md 和 docs 目录（大型项目特征）
+test -f AGENTS.md && echo "AGENTS.md 存在"
+test -d docs && echo "docs 目录存在"
 ```
 
 **触发对应的 harness skill：**
@@ -173,23 +177,44 @@ test -d project-state && echo "大型项目结构存在"
 | 新项目 + 大型项目 | 调用 `large-harness` 创建完整结构 |
 | 已有项目 + 小项目 | 只更新 `feature_list.json`，添加新功能 |
 | 已有项目 + 大型项目 | 只更新 `project-state/features.json`，添加新功能 |
+| 已有项目 + 无 harness 结构 | 调用 `large-harness` 基于现有信息创建结构 |
+
+**large-harness 三种场景：**
+
+新的 `large-harness` skill 支持三种场景：
+
+1. **新项目初始化**：自动生成完整的 harness 结构
+   - 创建五子系统工件（AGENTS.md、features.json、init.sh、session-handoff.md）
+   - 创建生产级文档体系（7 个治理文件）
+   - 创建参考材料和脚本工具
+
+2. **已有项目新增功能**：增量修改现有结构
+   - 更新 `project-state/features.json` 添加新功能
+   - 创建新的执行计划文件
+   - 更新相关文档索引
+
+3. **已有项目无 harness 结构**：基于现有信息创建
+   - 分析项目现有文档和 git 历史
+   - 生成匹配的 harness 结构
+   - 智能收集信息（自动检测 + 用户提问）
 
 **harness 创建内容对比：**
 
 | 项目类型 | 新项目 | 已有项目 |
 |----------|--------|----------|
 | **小项目** | 创建 `feature_list.json` + 其他文件 | 只更新 `feature_list.json` |
-| **大型项目** | 创建 `project-state/features.json` + 完整结构 | 只更新 `project-state/features.json` |
+| **大型项目** | 创建完整五子系统 + 生产级文档体系 | 只更新 `project-state/features.json` |
 
 **关键点：**
 - 新项目：创建完整的 harness 结构
 - 已有项目：增量更新，只添加新功能到现有结构
-- 两种模式都由 writing-plans 读取并更新
+- 无 harness 结构的项目：基于现有信息创建，支持智能信息收集
+- 三种模式都由 writing-plans 读取并更新
 
 **实现：**
 
 - harness 创建完成后，调用 writing-plans 技能创建详细的实现计划
-- writing-plans 会读取 `feature_list.json`，规划实现步骤，并更新 `tasks` 和 `next_step`
+- writing-plans 会读取 `feature_list.json` 或 `project-state/features.json`，规划实现步骤，并更新 `tasks` 和 `next_step`
 - 不要调用任何其他技能。writing-plans 是下一步。
 
 ## 核心原则
