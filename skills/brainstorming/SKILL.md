@@ -34,7 +34,8 @@ metadata:
 6. **编写设计文档** — 保存到 `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` 并 commit
 7. **规格自检** — 快速内联检查占位符、矛盾、模糊性、范围（详见下方）
 8. **用户审查书面规格** — 在继续之前请用户审查规格文件
-9. **过渡到实现** — 调用 writing-plans 技能创建实现计划
+9. **判断项目规模并触发 harness** — 根据规格判断项目规模，触发对应的 harness skill
+10. **过渡到实现** — 调用 writing-plans 技能创建实现计划
 
 ## 流程图
 
@@ -50,6 +51,10 @@ digraph brainstorming {
     "编写设计文档" [shape=box];
     "规格自检\n（内联修复）" [shape=box];
     "用户审查规格?" [shape=diamond];
+    "判断项目规模" [shape=box];
+    "小项目?" [shape=diamond];
+    "触发 small-harness" [shape=box];
+    "触发 large-harness" [shape=box];
     "调用 writing-plans 技能" [shape=doublecircle];
 
     "探索项目上下文" -> "有视觉相关问题?";
@@ -64,7 +69,12 @@ digraph brainstorming {
     "编写设计文档" -> "规格自检\n（内联修复）";
     "规格自检\n（内联修复）" -> "用户审查规格?";
     "用户审查规格?" -> "编写设计文档" [label="要求修改"];
-    "用户审查规格?" -> "调用 writing-plans 技能" [label="批准"];
+    "用户审查规格?" -> "判断项目规模" [label="批准"];
+    "判断项目规模" -> "小项目?";
+    "小项目?" -> "触发 small-harness" [label="是"];
+    "小项目?" -> "触发 large-harness" [label="否"];
+    "触发 small-harness" -> "调用 writing-plans 技能";
+    "触发 large-harness" -> "调用 writing-plans 技能";
 }
 ```
 
@@ -135,9 +145,51 @@ digraph brainstorming {
 
 等待用户回复。如果他们要求修改，做出修改并重新运行规格自检。只有在用户批准后才继续。
 
+**判断项目规模并触发 harness：**
+
+在用户批准规格后，根据规格内容判断项目规模：
+
+**判断标准：**
+- **小项目**：功能单一、开发周期短（1-2 周）、单人开发、不需要复杂治理结构
+- **大型项目**：多模块、多轮会话、长期演化、多人团队、需要完整治理结构
+
+**检测现有 harness 结构：**
+
+在触发 harness 之前，先检测项目是否已有 harness 结构：
+
+```bash
+# 检测小项目结构
+test -f feature_list.json && echo "小项目结构存在"
+
+# 检测大型项目结构
+test -d project-state && echo "大型项目结构存在"
+```
+
+**触发对应的 harness skill：**
+
+| 项目状态 | harness 操作 |
+|----------|-------------|
+| 新项目 + 小项目 | 调用 `small-harness` 创建完整结构 |
+| 新项目 + 大型项目 | 调用 `large-harness` 创建完整结构 |
+| 已有项目 + 小项目 | 只更新 `feature_list.json`，添加新功能 |
+| 已有项目 + 大型项目 | 只更新 `project-state/features.json`，添加新功能 |
+
+**harness 创建内容对比：**
+
+| 项目类型 | 新项目 | 已有项目 |
+|----------|--------|----------|
+| **小项目** | 创建 `feature_list.json` + 其他文件 | 只更新 `feature_list.json` |
+| **大型项目** | 创建 `project-state/features.json` + 完整结构 | 只更新 `project-state/features.json` |
+
+**关键点：**
+- 新项目：创建完整的 harness 结构
+- 已有项目：增量更新，只添加新功能到现有结构
+- 两种模式都由 writing-plans 读取并更新
+
 **实现：**
 
-- 调用 writing-plans 技能创建详细的实现计划
+- harness 创建完成后，调用 writing-plans 技能创建详细的实现计划
+- writing-plans 会读取 `feature_list.json`，规划实现步骤，并更新 `tasks` 和 `next_step`
 - 不要调用任何其他技能。writing-plans 是下一步。
 
 ## 核心原则

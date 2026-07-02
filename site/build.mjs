@@ -107,7 +107,7 @@ const T = {
   zh: {
     htmlLang: 'zh-CN',
     title: 'superpowers-zh · AI 编程超能力中文增强版',
-    desc: 'superpowers（233k+ ⭐）完整汉化 + 4 个中国原创 skills，一条 npx 命令为 18 款 AI 编程工具装上系统化工作方法论。',
+    desc: 'superpowers（233k+ ⭐）完整汉化 + 6 个中国原创 skills，一条 npx 命令为 18 款 AI 编程工具装上系统化工作方法论。',
     nav: { why: '特性', install: '安装', skills: 'Skills', tools: '支持工具', faq: 'FAQ', learn: '学习 ↗', github: 'GitHub ↗' },
     heroBadge: 'superpowers 233k+ ⭐ · 完整汉化 + 中国原创',
     heroH1: '给你的 AI 编程工具<br>装上<span class="grad">真正会干活</span>的超能力',
@@ -160,7 +160,7 @@ const T = {
     detailInstall: '安装此 skill',
     detailSource: '在 GitHub 查看源文件 ↗',
     features: [
-      { icon: '🧠', t: '20 个实战方法论', d: '不是 prompt 模板，是经过跨会话对抗式压力测试调优的工作方法论 —— 从头脑风暴到 TDD、调试、代码审查。' },
+      { icon: '🧠', t: '22 个实战方法论', d: '不是 prompt 模板，是经过跨会话对抗式压力测试调优的工作方法论 —— 从头脑风暴到 TDD、调试、代码审查。' },
       { icon: '🔌', t: '18 款工具通用', d: '一套 skill，Claude Code / Cursor / Codex / Gemini CLI / Windsurf… 全适配，换工具不用换习惯。' },
       { icon: '⚡', t: '一条命令安装', d: 'npx superpowers-zh 自动识别项目里用的是哪款工具并安装，零配置，装完重启即生效。' },
       { icon: '🇨🇳', t: '中国原创 Skills', d: '中文代码审查话术、中文提交规范、中文文档排版、国内 Git 平台（Gitee/Coding/极狐）配置 —— 上游没有。' },

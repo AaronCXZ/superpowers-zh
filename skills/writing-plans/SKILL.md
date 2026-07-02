@@ -20,8 +20,115 @@ metadata:
 
 **上下文：** 此技能应在专用 worktree 中运行（由 brainstorming 技能创建）。
 
+**前置条件：** harness skill 已将 brainstorming 规格写入 `feature_list.json`。
+
 **计划保存位置：** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
 - （用户对计划位置的偏好优先于此默认值）
+
+## 读取项目状态
+
+在开始规划之前，先读取项目状态文件获取当前功能信息：
+
+**检测项目类型：**
+- 检查是否存在 `feature_list.json`（小项目）
+- 检查是否存在 `project-state/features.json`（大型项目）
+
+**小项目模式（读取 feature_list.json）：**
+```bash
+cat feature_list.json
+```
+
+**大型项目模式（读取 project-state/features.json）：**
+```bash
+cat project-state/features.json
+```
+
+**关键字段：**
+- `name` / `current_feature.name`：功能名称
+- `description` / `current_feature.description`：功能描述
+- `spec_path` / `current_feature.spec_path`：规格文件路径
+- `architecture_path` / `current_feature.architecture_path`：架构文档路径（大型项目才有）
+- `status` / `current_feature.status`：当前状态（应为 "planning"）
+- `plan_path`：执行计划路径（大型项目）
+
+**如果状态文件不存在或缺少关键字段：**
+- 询问用户功能名称和描述
+- 创建状态文件并设置 status 为 "planning"
+
+**读取规格文件：**
+- 根据 `spec_path` 读取完整的规格文档
+- 如果存在 `architecture_path`，也读取架构文档作为参考
+
+**处理已有项目：**
+- 如果 `status` 不是 "planning"，说明是已有项目
+- 读取现有功能历史，了解之前的实现
+- 基于现有上下文规划新功能的实现步骤
+
+## 更新项目状态
+
+规划完成后，更新对应的状态文件：
+
+**小项目模式（更新 feature_list.json）：**
+
+```json
+{
+  "current_feature": {
+    "name": "功能名称",
+    "status": "planned",
+    "description": "功能描述",
+    "spec_path": "docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md",
+    "tasks": [
+      {
+        "name": "任务1名称",
+        "status": "pending",
+        "plan_path": "docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md#任务-1",
+        "estimated_time": "5分钟"
+      }
+    ],
+    "next_step": "执行任务1：[任务1名称]"
+  },
+  "completed_features": []
+}
+```
+
+**大型项目模式（更新 project-state/features.json）：**
+
+```json
+{
+  "project_name": "项目名称",
+  "version": "1.0.0",
+  "features": [
+    {
+      "id": "feature-001",
+      "name": "功能名称",
+      "status": "planned",
+      "priority": "high",
+      "owner": "负责人",
+      "created_at": "2026-07-02",
+      "spec_path": "docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md",
+      "architecture_path": "ARCHITECTURE.md",
+      "plan_path": "docs/exec-plans/active/YYYY-MM-DD-<feature>.md",
+      "tasks": [
+        {
+          "name": "任务1名称",
+          "status": "pending",
+          "plan_path": "docs/exec-plans/active/YYYY-MM-DD-<feature>.md#任务-1",
+          "estimated_time": "5分钟"
+        }
+      ],
+      "next_step": "执行任务1：[任务1名称]",
+      "dependencies": [],
+      "tags": ["core", "api"]
+    }
+  ],
+  "completed_features": []
+}
+```
+
+**状态流转：**
+- `planning` → `planned`（writing-plans 完成后）
+- `planned` → `in_progress`（开始执行任务）
+- `in_progress` → `completed`（所有任务完成）
 
 ## 范围检查
 
